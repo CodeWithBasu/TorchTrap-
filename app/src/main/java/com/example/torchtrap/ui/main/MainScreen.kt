@@ -1,55 +1,76 @@
 package com.example.torchtrap.ui.main
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavKey
-import com.example.torchtrap.data.DefaultDataRepository
-import com.example.torchtrap.theme.TorchTrapTheme
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.torchtrap.theme.*
 
 @Composable
-fun MainScreen(
-  onItemClick: (NavKey) -> Unit,
-  modifier: Modifier = Modifier,
-  viewModel: MainScreenViewModel = viewModel { MainScreenViewModel(DefaultDataRepository()) },
-) {
-  val state by viewModel.uiState.collectAsStateWithLifecycle()
-  when (state) {
-    MainScreenUiState.Loading -> {
-      // Blank
+fun MainScreen(modifier: Modifier = Modifier) {
+    var isTorchOn by remember { mutableStateOf(false) }
+    
+    val buttonScale by animateFloatAsState(
+        targetValue = if (isTorchOn) 1.1f else 1.0f,
+        animationSpec = tween(300), label = "scale"
+    )
+    
+    val buttonColor by animateColorAsState(
+        targetValue = if (isTorchOn) NeonGreen else TorchOffGray,
+        animationSpec = tween(300), label = "color"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(DarkBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "TorchTrap",
+                color = PureWhite,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 64.dp)
+            )
+            
+            Box(
+                modifier = Modifier
+                    .size(150.dp)
+                    .scale(buttonScale)
+                    .shadow(if (isTorchOn) 50.dp else 0.dp, CircleShape, ambientColor = NeonGreen, spotColor = NeonGreen)
+                    .clip(CircleShape)
+                    .background(buttonColor)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        isTorchOn = !isTorchOn
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (isTorchOn) "ON" else "OFF",
+                    color = if (isTorchOn) PureBlack else PureWhite,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
-    is MainScreenUiState.Success -> {
-      MainScreen(data = (state as MainScreenUiState.Success).data, modifier = modifier)
-    }
-    is MainScreenUiState.Error -> {
-      Text("Error loading data: ${(state as MainScreenUiState.Error).throwable.message}")
-    }
-  }
-}
-
-@Composable
-internal fun MainScreen(data: List<String>, modifier: Modifier = Modifier) {
-  Column(modifier) { data.forEach { Greeting(it) } }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(text = "Hello $name!", modifier = modifier)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-  TorchTrapTheme { MainScreen(listOf("Android")) }
-}
-
-@Preview(showBackground = true, widthDp = 340)
-@Composable
-fun MainScreenPortraitPreview() {
-  TorchTrapTheme { MainScreen(listOf("Android")) }
 }
