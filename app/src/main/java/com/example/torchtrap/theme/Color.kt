@@ -10,3 +10,7 @@ val IosButtonGray = Color(0xFF333333)
 val IosTextGray = Color(0xFF8E8E93)
 val IosLockRed = Color(0xFFFF3B30)
 val IosIconYellow = Color(0xFFF0B300)
+
+// Claymorphism colors used by OnboardingScreen
+val ClaySurfaceOn = Color(0xFF3898FF)
+val TextDark = Color(0xFF2C3E50)
