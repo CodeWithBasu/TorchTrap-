@@ -55,6 +55,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var showFakeSms by remember { mutableStateOf(false) }
     var showFormattingTrap by remember { mutableStateOf(false) }
     var formatProgress by remember { mutableFloatStateOf(0f) }
+    var showCameraFlash by remember { mutableStateOf(false) }
+    var showFaceAuthMessage by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     
     val context = LocalContext.current
@@ -128,9 +130,27 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                 isTorchOn = true
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             } else {
-                                // Trigger the prank!
-                                showPrankDialog = true
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                // Trigger the camera flash and face auth prank!
+                                scope.launch {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    
+                                    // Camera shutter sound
+                                    val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+                                    tg.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
+                                    
+                                    // Flash the screen
+                                    showCameraFlash = true
+                                    delay(100)
+                                    showCameraFlash = false
+                                    
+                                    // Show Face Auth message
+                                    showFaceAuthMessage = true
+                                    delay(1500)
+                                    showFaceAuthMessage = false
+                                    
+                                    // Finally, show the payment trap
+                                    showPrankDialog = true
+                                }
                             }
                         },
                 contentAlignment = Alignment.Center
@@ -514,6 +534,58 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
+                    )
+                }
+            }
+        }
+        
+        // Fake Camera Flash
+        AnimatedVisibility(
+            visible = showCameraFlash,
+            enter = fadeIn(tween(50)),
+            exit = fadeOut(tween(300))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White)
+            )
+        }
+        
+        // Face Auth Message
+        AnimatedVisibility(
+            visible = showFaceAuthMessage,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.Center)
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .padding(24.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("📸", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Face Captured",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Authorizing Payment via Bank...",
+                        color = Color.LightGray,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    androidx.compose.material3.CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
                     )
                 }
             }
