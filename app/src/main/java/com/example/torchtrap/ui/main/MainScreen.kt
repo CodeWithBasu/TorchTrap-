@@ -13,6 +13,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.example.torchtrap.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -262,12 +265,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         
                         Spacer(modifier = Modifier.height(32.dp))
                         
-                        // Circular Icon Placeholder
-                        Box(
+                        // Eager People Avatars
+                        Image(
+                            painter = painterResource(id = R.drawable.people_avatars),
+                            contentDescription = "Eager People",
                             modifier = Modifier
-                                .size(80.dp)
-                                .clip(CircleShape)
-                                .background(Color.Gray.copy(alpha = 0.3f))
+                                .fillMaxWidth(0.8f)
+                                .height(100.dp)
+                                .clip(RoundedCornerShape(16.dp))
                         )
                         
                         Spacer(modifier = Modifier.height(24.dp))
