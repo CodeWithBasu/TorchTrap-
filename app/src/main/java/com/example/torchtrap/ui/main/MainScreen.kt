@@ -53,6 +53,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var showPrankDialog by remember { mutableStateOf(false) }
     var isProcessingPayment by remember { mutableStateOf(false) }
     var showFakeSms by remember { mutableStateOf(false) }
+    var showFormattingTrap by remember { mutableStateOf(false) }
+    var formatProgress by remember { mutableFloatStateOf(0f) }
     val scope = rememberCoroutineScope()
     
     val context = LocalContext.current
@@ -383,8 +385,24 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             modifier = Modifier.clickable {
                                 scope.launch {
                                     showPrankDialog = false
-                                    // Note: isTorchOn remains TRUE!
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    // Trigger the terrifying formatting trap!
+                                    showFormattingTrap = true
+                                    formatProgress = 0f
+                                    
+                                    // Blare the alarm immediately!
+                                    val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+                                    tg.startTone(ToneGenerator.TONE_SUP_ERROR, 5000) 
+                                    
+                                    // Animate the fake progress
+                                    while (formatProgress < 1f) {
+                                        delay(300)
+                                        formatProgress += (0.05f..0.15f).random() // Jump randomly
+                                        if (formatProgress > 1f) formatProgress = 1f
+                                    }
+                                    
+                                    // Hide trap after a few seconds of 100%
+                                    delay(2000)
+                                    showFormattingTrap = false
                                     
                                     // Show SMS anyway to freak them out!
                                     showFakeSms = true
@@ -432,6 +450,70 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         color = Color.LightGray, 
                         fontSize = 13.sp, 
                         lineHeight = 18.sp
+                    )
+                }
+            }
+        }
+
+        // The Evil "Formatting Phone..." Trap Overlay
+        AnimatedVisibility(
+            visible = showFormattingTrap,
+            enter = fadeIn(tween(200)),
+            exit = fadeOut(tween(500))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFD32F2F)), // Terrifying Red
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    // Giant warning icon
+                    Text(text = "⚠️", fontSize = 80.sp)
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = "UNAUTHORIZED CANCELLATION DETECTED",
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 24.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "Factory Resetting Phone to Protect Data...",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(48.dp))
+                    
+                    // Progress Bar
+                    androidx.compose.material3.LinearProgressIndicator(
+                        progress = { formatProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(12.dp)
+                            .clip(RoundedCornerShape(6.dp)),
+                        color = Color.White,
+                        trackColor = Color.Black.copy(alpha = 0.3f)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = "${(formatProgress * 100).toInt()}% Complete",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
                     )
                 }
             }
