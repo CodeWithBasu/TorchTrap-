@@ -3,14 +3,15 @@ package com.example.torchtrap.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = ClaySurfaceOn,
-    background = ClayBackground,
-    surface = ClaySurfaceOff,
-    onPrimary = TextLight,
-    onBackground = TextDark,
-    onSurface = TextDark
+    primary = IosYellow,
+    background = IosLightBackground,
+    surface = IosLightBackground,
+    onPrimary = Color.Black,
+    onBackground = Color.Black,
+    onSurface = Color.Black
 )
 
 @Composable

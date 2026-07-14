@@ -4,21 +4,23 @@ import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.rounded.FlashlightOn
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -37,7 +39,6 @@ import com.example.torchtrap.theme.*
 fun MainScreen(modifier: Modifier = Modifier) {
     var isTorchOn by remember { mutableStateOf(false) }
     var showPrankDialog by remember { mutableStateOf(false) }
-    var isPressed by remember { mutableStateOf(false) }
     
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -53,97 +54,162 @@ fun MainScreen(modifier: Modifier = Modifier) {
         } catch (e: Exception) {}
     }
 
-    // Button Spring Animation (Squishy clay feel)
-    val buttonScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.85f else if (isTorchOn) 1.05f else 1f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow), label = "scale"
-    )
-
-    // Smooth color transitions
-    val buttonColor by animateColorAsState(
-        targetValue = if (isTorchOn) ClaySurfaceOn else ClaySurfaceOff,
-        animationSpec = tween(400), label = "color"
-    )
-
-    val textColor by animateColorAsState(
-        targetValue = if (isTorchOn) TextLight else TextDark,
-        animationSpec = tween(400), label = "textColor"
-    )
+    val bgColor by animateColorAsState(if (isTorchOn) IosLightBackground else IosDarkBackground, tween(300))
+    val textColor by animateColorAsState(if (isTorchOn) IosTextGray else IosTextGray, tween(300))
+    val statusColor by animateColorAsState(if (isTorchOn) IosYellow else Color.White, tween(300))
+    
+    val circleBgColor by animateColorAsState(if (isTorchOn) IosYellow else IosButtonGray, tween(300))
+    val iconColor by animateColorAsState(if (isTorchOn) IosIconYellow else Color.White, tween(300))
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(ClayBackground),
+            .background(bgColor),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Spacer(modifier = Modifier.height(100.dp))
+            
             Text(
-                text = "TorchTrap",
-                color = TextDark,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.padding(bottom = 80.dp)
+                text = "FLASHLIGHT",
+                color = textColor,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                letterSpacing = 4.sp
             )
-
-            // Claymorphism Toggle Button
+            
+            Spacer(modifier = Modifier.weight(1f))
+            
+            // Giant Flashlight Circle
             Box(
                 modifier = Modifier
                     .size(200.dp)
-                    .scale(buttonScale)
-                    // Soft outer drop shadow
-                    .shadow(
-                        elevation = if (isPressed) 8.dp else 24.dp,
-                        shape = CircleShape,
-                        spotColor = if (isTorchOn) ClaySurfaceOn else ClayShadowDark,
-                        ambientColor = if (isTorchOn) ClaySurfaceOn else ClayShadowDark
+                    // If on, add a huge soft glow behind it
+                    .background(
+                        if (isTorchOn) Brush.radialGradient(
+                            colors = listOf(IosYellow.copy(alpha = 0.5f), Color.Transparent),
+                            radius = 400f
+                        ) else Brush.radialGradient(listOf(Color.Transparent, Color.Transparent))
                     )
                     .clip(CircleShape)
-                    .background(buttonColor)
-                    // Inner Highlight (Top Left)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(Color.White.copy(alpha = if (isTorchOn) 0.3f else 0.8f), Color.Transparent),
-                            center = Offset(100f, 100f),
-                            radius = 300f
-                        )
-                    )
-                    // Inner Shadow (Bottom Right)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(Color.Black.copy(alpha = if (isTorchOn) 0.15f else 0.05f), Color.Transparent),
-                            center = Offset(500f, 500f),
-                            radius = 400f
-                        )
-                    )
+                    .background(circleBgColor)
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
-                                isPressed = true
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                tryAwaitRelease()
-                                isPressed = false
                                 if (!isTorchOn) {
                                     isTorchOn = true
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 } else {
                                     showPrankDialog = true
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 }
                             }
                         )
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = if (isTorchOn) "ON" else "OFF",
-                    color = textColor,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
+                Icon(
+                    imageVector = Icons.Rounded.FlashlightOn,
+                    contentDescription = "Flashlight",
+                    tint = iconColor,
+                    modifier = Modifier.size(80.dp)
                 )
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            Text(
+                text = if (isTorchOn) "ON" else "OFF",
+                color = statusColor,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 6.sp
+            )
+            
+            Spacer(modifier = Modifier.weight(1.5f))
+            
+            // Bottom pill toggles
+            Row(
+                modifier = Modifier.padding(bottom = 60.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // ON Button
+                Box(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(if (isTorchOn) IosYellow else IosDarkBackground)
+                        .border(
+                            width = 1.dp, 
+                            color = if (!isTorchOn) IosButtonGray else Color.Transparent, 
+                            shape = RoundedCornerShape(28.dp)
+                        )
+                        .clickable {
+                            if (!isTorchOn) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                isTorchOn = true
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "ON",
+                        color = if (isTorchOn) Color.Black else Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+
+                // OFF Button
+                Box(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(if (isTorchOn) Color.Black else IosButtonGray)
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            if (isTorchOn) {
+                                showPrankDialog = true
+                            }
+                        }
+                ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "OFF",
+                            color = if (isTorchOn) Color.White.copy(alpha = 0.5f) else Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+                    }
+                    
+                    // Tiny red lock badge in top right
+                    if (isTorchOn) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(top = 8.dp, end = 12.dp)
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(IosLockRed),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Lock,
+                                contentDescription = "Locked",
+                                tint = Color.White,
+                                modifier = Modifier.size(10.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
 
-        // Claymorphism Prank Dialog
+        // iOS style modal for prank
         if (showPrankDialog) {
             Dialog(
                 onDismissRequest = { /* Blocked */ },
@@ -152,69 +218,34 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .shadow(32.dp, RoundedCornerShape(32.dp), spotColor = ClayShadowDark, ambientColor = ClayShadowDark)
-                        .clip(RoundedCornerShape(32.dp))
-                        .background(ClaySurfaceOff)
-                        // Inner Highlight
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(Color.White, Color.Transparent),
-                                center = Offset(50f, 50f),
-                                radius = 400f
-                            )
-                        )
-                        // Inner Shadow
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(Color.Black.copy(alpha = 0.03f), Color.Transparent),
-                                center = Offset(800f, 800f),
-                                radius = 600f
-                            )
-                        )
-                        .padding(32.dp),
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.White)
+                        .padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        // Soft 3D-like Icon representation
-                        Box(
-                            modifier = Modifier
-                                .size(64.dp)
-                                .shadow(8.dp, CircleShape, spotColor = DangerClay)
-                                .clip(CircleShape)
-                                .background(DangerClay)
-                                .background(Brush.radialGradient(listOf(Color.White.copy(0.4f), Color.Transparent), Offset(30f, 30f), 100f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("!", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Black)
-                        }
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
                         Text(
-                            text = "Payment Required",
-                            color = TextDark,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.ExtraBold
+                            text = "Flashlight Locked",
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "Please pay ₹99 to turn off the torch. Just kidding! 😂",
-                            color = TextDark.copy(alpha = 0.7f),
+                            text = "Please pay ₹99 to turn off the flashlight.\nJust kidding! 😂",
+                            color = Color.DarkGray,
                             textAlign = TextAlign.Center,
                             fontSize = 15.sp,
                             lineHeight = 22.sp
                         )
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                         
-                        // Claymorphism Pay Button
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(60.dp)
-                                .shadow(12.dp, RoundedCornerShape(24.dp), spotColor = ClaySurfaceOn)
-                                .clip(RoundedCornerShape(24.dp))
-                                .background(ClaySurfaceOn)
-                                .background(Brush.radialGradient(listOf(Color.White.copy(0.3f), Color.Transparent), Offset(50f, 20f), 200f))
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(IosYellow)
                                 .clickable {
                                     showPrankDialog = false
                                     isTorchOn = false
@@ -223,7 +254,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("Pay ₹99", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Text("Pay ₹99", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
                 }
