@@ -87,8 +87,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
         if (showPrankDialog) {
             val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
             toneGenerator.startTone(ToneGenerator.TONE_SUP_ERROR, 600) // Loud annoying buzzer
-          } catch (e: Exception) {
-            e.printStackTrace()
+            delay(800)
+            toneGenerator.release()
         }
     }
     
