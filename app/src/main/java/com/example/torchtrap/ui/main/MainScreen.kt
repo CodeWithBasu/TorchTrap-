@@ -291,7 +291,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
-                                text = "$499",
+                                text = "₹99",
                                 color = Color.White,
                                 fontSize = 48.sp,
                                 fontWeight = FontWeight.Black
@@ -360,7 +360,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                 )
                             } else {
                                 Text(
-                                    text = "Pay $499.00", 
+                                    text = "Pay ₹99.00", 
                                     color = Color.White, 
                                     fontWeight = FontWeight.Bold, 
                                     fontSize = 18.sp
@@ -423,7 +423,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 Column {
                     Text("Messages", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     Text(
-                        "Bank Alert: Rs. 499.00 has been debited from your A/c XXXX. Ref: TXN-847291.", 
+                        "Bank Alert: Rs. 99.00 has been debited from your A/c XXXX. Ref: TXN-847291.", 
                         color = Color.LightGray, 
                         fontSize = 13.sp, 
                         lineHeight = 18.sp
