@@ -610,7 +610,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
         AnimatedVisibility(
             visible = showSystemCrash,
             enter = fadeIn(tween(0)), // Instant black screen
-            exit = fadeOut(tween(300))
+            exit = fadeOut(tween(300)),
+            modifier = Modifier.fillMaxSize()
         ) {
             Box(
                 modifier = Modifier
@@ -621,8 +622,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 // Tiny spinning white circle like a phone booting or crashing
                 androidx.compose.material3.CircularProgressIndicator(
                     color = Color.White,
-                    modifier = Modifier.size(36.dp),
-                    strokeWidth = 3.dp
+                    modifier = Modifier.size(48.dp),
+                    strokeWidth = 4.dp
                 )
             }
         }
