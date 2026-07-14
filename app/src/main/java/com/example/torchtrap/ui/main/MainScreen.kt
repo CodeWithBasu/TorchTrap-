@@ -8,6 +8,11 @@ import kotlinx.coroutines.delay
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +26,7 @@ import androidx.compose.material.icons.rounded.FlashlightOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +48,9 @@ import com.example.torchtrap.theme.*
 fun MainScreen(modifier: Modifier = Modifier) {
     var isTorchOn by remember { mutableStateOf(false) }
     var showPrankDialog by remember { mutableStateOf(false) }
+    var isProcessingPayment by remember { mutableStateOf(false) }
+    var showFakeSms by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -109,18 +118,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     )
                     .clip(CircleShape)
                     .background(circleBgColor)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onPress = {
+                        .clickable { 
+                            if (!isTorchOn) {
+                                isTorchOn = true
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                if (!isTorchOn) {
-                                    isTorchOn = true
-                                } else {
-                                    showPrankDialog = true
-                                }
+                            } else {
+                                // Trigger the prank!
+                                showPrankDialog = true
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             }
-                        )
-                    },
+                        },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -322,22 +329,43 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                 .clip(RoundedCornerShape(16.dp))
                                 .background(Color.Black)
                                 .clickable {
-                                    showPrankDialog = false
-                                    isTorchOn = false
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    // Success sound
-                                    val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)
-                                    tg.startTone(ToneGenerator.TONE_PROP_BEEP2, 200)
-                                    Toast.makeText(context, "Payment Accepted. Enjoy the darkness! 🎈", Toast.LENGTH_LONG).show()
+                                    if (!isProcessingPayment) {
+                                        scope.launch {
+                                            isProcessingPayment = true
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            // Wait 3 agonizing seconds
+                                            delay(3000)
+                                            
+                                            isProcessingPayment = false
+                                            showPrankDialog = false
+                                            isTorchOn = false
+                                            // Success sound
+                                            val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+                                            tg.startTone(ToneGenerator.TONE_PROP_BEEP2, 200)
+                                            
+                                            // Show terrifying SMS
+                                            showFakeSms = true
+                                            delay(5000)
+                                            showFakeSms = false
+                                        }
+                                    }
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "Pay $499.00", 
-                                color = Color.White, 
-                                fontWeight = FontWeight.Bold, 
-                                fontSize = 18.sp
-                            )
+                            if (isProcessingPayment) {
+                                androidx.compose.material3.CircularProgressIndicator(
+                                    color = Color.White,
+                                    modifier = Modifier.size(24.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(
+                                    text = "Pay $499.00", 
+                                    color = Color.White, 
+                                    fontWeight = FontWeight.Bold, 
+                                    fontSize = 18.sp
+                                )
+                            }
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
@@ -348,12 +376,58 @@ fun MainScreen(modifier: Modifier = Modifier) {
                             color = Color.Gray,
                             fontSize = 12.sp,
                             modifier = Modifier.clickable {
-                                showPrankDialog = false
-                                // Note: isTorchOn remains TRUE!
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                scope.launch {
+                                    showPrankDialog = false
+                                    // Note: isTorchOn remains TRUE!
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    
+                                    // Show SMS anyway to freak them out!
+                                    showFakeSms = true
+                                    delay(5000)
+                                    showFakeSms = false
+                                }
                             }
                         )
                     }
+                }
+            }
+        }
+
+        // Fake SMS Notification Overlay
+        AnimatedVisibility(
+            visible = showFakeSms,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 48.dp, start = 16.dp, end = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF2C2C2E).copy(alpha = 0.95f))
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF007AFF)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("💬", fontSize = 20.sp)
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text("Messages", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        "Bank Alert: Rs. 499.00 has been debited from your A/c XXXX. Ref: TXN-847291.", 
+                        color = Color.LightGray, 
+                        fontSize = 13.sp, 
+                        lineHeight = 18.sp
+                    )
                 }
             }
         }
