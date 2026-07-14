@@ -23,6 +23,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.rounded.FlashlightOn
@@ -57,6 +58,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     var formatProgress by remember { mutableFloatStateOf(0f) }
     var showCameraFlash by remember { mutableStateOf(false) }
     var showFaceAuthMessage by remember { mutableStateOf(false) }
+    var showSystemCrash by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     
     val context = LocalContext.current
@@ -85,8 +87,21 @@ fun MainScreen(modifier: Modifier = Modifier) {
         if (showPrankDialog) {
             val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
             toneGenerator.startTone(ToneGenerator.TONE_SUP_ERROR, 600) // Loud annoying buzzer
-            delay(800)
-            toneGenerator.release()
+          } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    
+    // Prevent back button from escaping the trap, trigger the system crash instead!
+    BackHandler(enabled = isTorchOn || showPrankDialog || showSystemCrash) {
+        if (showPrankDialog) {
+            // Close the dialog but instantly trigger the fake OS crash
+            showPrankDialog = false
+            showSystemCrash = true
+            
+            // Play a terrifying abrupt error sound
+            val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+            tg.startTone(ToneGenerator.TONE_CDMA_ABBR_INTERCEPT, 1000)
         }
     }
 
@@ -588,6 +603,27 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         strokeWidth = 2.dp
                     )
                 }
+            }
+        }
+        
+        // The Infinite "System Crash" Loop
+        AnimatedVisibility(
+            visible = showSystemCrash,
+            enter = fadeIn(tween(0)), // Instant black screen
+            exit = fadeOut(tween(300))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black), // Pitch black dead screen
+                contentAlignment = Alignment.Center
+            ) {
+                // Tiny spinning white circle like a phone booting or crashing
+                androidx.compose.material3.CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(36.dp),
+                    strokeWidth = 3.dp
+                )
             }
         }
     }
