@@ -2,6 +2,9 @@ package com.example.torchtrap.ui.main
 
 import android.content.Context
 import android.hardware.camera2.CameraManager
+import android.media.ToneGenerator
+import android.media.AudioManager
+import kotlinx.coroutines.delay
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
@@ -60,6 +63,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
     
     val circleBgColor by animateColorAsState(if (isTorchOn) ClaySurfaceOn else IosButtonGray, tween(300))
     val iconColor by animateColorAsState(if (isTorchOn) Color.White else Color.White, tween(300))
+
+    // Funny buzzer sound effect when trap springs
+    LaunchedEffect(showPrankDialog) {
+        if (showPrankDialog) {
+            val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+            toneGenerator.startTone(ToneGenerator.TONE_SUP_ERROR, 600) // Loud annoying buzzer
+            delay(800)
+            toneGenerator.release()
+        }
+    }
 
     Box(
         modifier = modifier
@@ -312,6 +325,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                     showPrankDialog = false
                                     isTorchOn = false
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    // Success sound
+                                    val tg = ToneGenerator(AudioManager.STREAM_ALARM, 100)
+                                    tg.startTone(ToneGenerator.TONE_PROP_BEEP2, 200)
                                     Toast.makeText(context, "Payment Accepted. Enjoy the darkness! 🎈", Toast.LENGTH_LONG).show()
                                 },
                             contentAlignment = Alignment.Center
