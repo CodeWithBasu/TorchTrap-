@@ -209,53 +209,134 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        // iOS style modal for prank
+        // iOS style modal for prank (Bottom Sheet style)
         if (showPrankDialog) {
             Dialog(
                 onDismissRequest = { /* Blocked */ },
-                properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+                properties = DialogProperties(
+                    dismissOnBackPress = false, 
+                    dismissOnClickOutside = false,
+                    usePlatformDefaultWidth = false
+                )
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color.White)
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.BottomCenter
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "Flashlight Locked",
-                            color = Color.Black,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
+                            .background(IosDarkGray)
+                            .padding(top = 16.dp, bottom = 48.dp, start = 32.dp, end = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Top Handle
+                        Box(
+                            modifier = Modifier
+                                .width(40.dp)
+                                .height(5.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = 0.5f))
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = "Please pay ₹99 to turn off the flashlight.\nJust kidding! 😂",
-                            color = Color.DarkGray,
-                            textAlign = TextAlign.Center,
-                            fontSize = 15.sp,
-                            lineHeight = 22.sp
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        // Circular Icon Placeholder
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = 0.3f))
                         )
+                        
                         Spacer(modifier = Modifier.height(24.dp))
                         
+                        Text(
+                            text = "FlashLight Pro",
+                            color = Color.White,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        Text(
+                            text = "Unlock the OFF Button",
+                            color = Color.LightGray,
+                            fontSize = 14.sp
+                        )
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = "$499",
+                                color = Color.White,
+                                fontSize = 48.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                            Text(
+                                text = ".00",
+                                color = Color.White,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 6.dp)
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        // Features List
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.Start,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("Turn off your flashlight", color = Color.White, fontSize = 14.sp)
+                            Text("Lifetime darkness access", color = Color.White, fontSize = 14.sp)
+                            Text("Priority OFF support", color = Color.White, fontSize = 14.sp)
+                            Text("Exclusive black screen mode", color = Color.White, fontSize = 14.sp)
+                        }
+                        
+                        Spacer(modifier = Modifier.height(40.dp))
+                        
+                        // Pay Button
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(IosYellow)
+                                .height(56.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.Black)
                                 .clickable {
                                     showPrankDialog = false
                                     isTorchOn = false
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    Toast.makeText(context, "Gotcha! 🎈", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Payment Accepted. Enjoy the darkness! 🎈", Toast.LENGTH_LONG).show()
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("Pay ₹99", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                text = "Pay $499.00", 
+                                color = Color.White, 
+                                fontWeight = FontWeight.Bold, 
+                                fontSize = 18.sp
+                            )
                         }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        // No Thanks text
+                        Text(
+                            text = "No thanks, I'll keep it on forever",
+                            color = Color.Gray,
+                            fontSize = 12.sp,
+                            modifier = Modifier.clickable {
+                                showPrankDialog = false
+                                // Note: isTorchOn remains TRUE!
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        )
                     }
                 }
             }
