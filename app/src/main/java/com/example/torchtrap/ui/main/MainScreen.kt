@@ -56,10 +56,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     val bgColor by animateColorAsState(if (isTorchOn) IosLightBackground else IosDarkBackground, tween(300))
     val textColor by animateColorAsState(if (isTorchOn) IosTextGray else IosTextGray, tween(300))
-    val statusColor by animateColorAsState(if (isTorchOn) IosYellow else Color.White, tween(300))
+    val statusColor by animateColorAsState(if (isTorchOn) ClaySurfaceOn else Color.White, tween(300))
     
-    val circleBgColor by animateColorAsState(if (isTorchOn) IosYellow else IosButtonGray, tween(300))
-    val iconColor by animateColorAsState(if (isTorchOn) IosIconYellow else Color.White, tween(300))
+    val circleBgColor by animateColorAsState(if (isTorchOn) ClaySurfaceOn else IosButtonGray, tween(300))
+    val iconColor by animateColorAsState(if (isTorchOn) Color.White else Color.White, tween(300))
 
     Box(
         modifier = modifier
@@ -90,7 +90,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     // If on, add a huge soft glow behind it
                     .background(
                         if (isTorchOn) Brush.radialGradient(
-                            colors = listOf(IosYellow.copy(alpha = 0.5f), Color.Transparent),
+                            colors = listOf(ClaySurfaceOn.copy(alpha = 0.5f), Color.Transparent),
                             radius = 400f
                         ) else Brush.radialGradient(listOf(Color.Transparent, Color.Transparent))
                     )
@@ -141,7 +141,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         .width(120.dp)
                         .height(56.dp)
                         .clip(RoundedCornerShape(28.dp))
-                        .background(if (isTorchOn) IosYellow else IosDarkBackground)
+                        .background(if (isTorchOn) ClaySurfaceOn else IosDarkBackground)
                         .border(
                             width = 1.dp, 
                             color = if (!isTorchOn) IosButtonGray else Color.Transparent, 
