@@ -416,7 +416,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                                     // Animate the fake progress
                                     while (formatProgress < 1f) {
                                         delay(300)
-                                        formatProgress += (0.05f..0.15f).random() // Jump randomly
+                                        formatProgress += kotlin.random.Random.nextDouble(0.05, 0.15).toFloat() // Jump randomly
                                         if (formatProgress > 1f) formatProgress = 1f
                                     }
                                     
