@@ -83,13 +83,21 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val circleBgColor by animateColorAsState(if (isTorchOn) ClaySurfaceOn else IosButtonGray, tween(300))
     val iconColor by animateColorAsState(if (isTorchOn) Color.White else Color.White, tween(300))
 
-    // Funny buzzer sound effect when trap springs
+    // Funny buzzer sound effect and terrifying heartbeat when trap springs
     LaunchedEffect(showPrankDialog) {
         if (showPrankDialog) {
             val toneGenerator = ToneGenerator(AudioManager.STREAM_ALARM, 100)
             toneGenerator.startTone(ToneGenerator.TONE_SUP_ERROR, 600) // Loud annoying buzzer
             delay(800)
             toneGenerator.release()
+            
+            // Start the terrifying heartbeat loop while they stare at the paywall
+            while (showPrankDialog && !isProcessingPayment) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                delay(150)
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                delay(1200) // Wait for next beat, slow and tense
+            }
         }
     }
     
