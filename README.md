@@ -35,10 +35,14 @@ graph TD
     B --> C{🔦 Flashlight turns on!}
     C --> D[Victim tries to turn it off]
     D --> E[Taps 'OFF' Button]
+    D --> O[Pulls down System Control Panel]
+    
+    O -->|Intercepted! Forces Flashlight ON| F
     E --> F((🚨 TRAP ACTIVATED))
     
     F --> G[📸 Fake Face ID Capture]
     F --> H[🔊 Blares Error Alarm]
+    F --> P[💓 Haptic Heartbeat Vibrations]
     
     G --> I[💬 Fake Bank SMS: '₹99.00 Debited']
     I --> J{Victim Panics}
@@ -50,6 +54,7 @@ graph TD
     style F fill:#ff0000,stroke:#333,stroke-width:4px,color:#fff
     style M fill:#000,stroke:#ff0000,stroke-width:2px,color:#fff
     style C fill:#f9d71c,stroke:#333,stroke-width:2px,color:#000
+    style O fill:#333,stroke:#fff,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -58,11 +63,13 @@ graph TD
 
 | Feature | Description |
 | :--- | :--- |
-| **🍏 Premium Disguise** | A stunning, modern UI built with Jetpack Compose that mimics a high-end iOS system utility to lower the victim's guard. |
+| **🍏 Premium Disguise** | A stunning, modern UI built with Jetpack Compose featuring custom fluid Claymorphism animations to lower the victim's guard. |
 | **💸 The Ransom Paywall** | The "OFF" button is permanently locked behind a terrifying ₹99.00 payment demand. |
 | **🚨 The System Buzzer** | Any attempt to interact with the locked button triggers a jarring, abrasive hardware alarm tone. |
+| **💓 Haptic Heartbeat** | The phone's vibration motor physically mimics a slow, tense heartbeat while the victim stares at the ransom screen, building massive psychological tension. |
 | **📸 Fake Biometrics** | The app flashes the screen bright white and fakes a facial recognition capture to simulate an unauthorized transaction. |
 | **💬 Bogus Bank SMS** | A highly realistic system notification overlay drops down, convincing the user their bank account has just been debited. |
+| **🛡️ System Override Intercept** | If the victim tries to cheat by pulling down their Android Control Panel to turn off the flashlight, the app instantly detects it, violently forces the flashlight back ON, and springs the trap anyway. |
 | **💀 The Bricked OS Trap** | Intercepts the Android "Back" gesture, plunges the screen into absolute pitch black darkness, blares a fatal hardware intercept beep, and displays an endless loading ring. |
 
 ---
@@ -79,9 +86,10 @@ graph TD
 ## 🛠️ Tech Stack
 
 *   **Kotlin** - First-class and official programming language for Android development.
-*   **Jetpack Compose** - Android's modern toolkit for building native UI.
-*   **Camera2 API** - For low-level hardware flashlight access.
+*   **Jetpack Compose** - Android's modern toolkit for building native UI, including custom fluid Claymorphism animations.
+*   **Camera2 API** - For low-level hardware flashlight access and system state interception.
 *   **ToneGenerator API** - For generating terrifying system-level error buzzers and alarms.
+*   **Vibrator API** - For custom haptic heartbeat rhythm generation.
 
 ---
 
