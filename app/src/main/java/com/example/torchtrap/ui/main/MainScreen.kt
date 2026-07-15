@@ -74,7 +74,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
     DisposableEffect(cameraManager, cameraId) {
         val torchCallback = object : CameraManager.TorchCallback() {
             override fun onTorchModeChanged(camId: String, enabled: Boolean) {
-                if (camId == cameraId && !enabled && isTorchOn && !showPrankDialog && !showSystemCrash) {
+                // If they turn it off from the system while our app thinks it should be ON...
+                if (camId == cameraId && !enabled && isTorchOn) {
                     // Victim tried to bypass the trap by turning it off via the system Control Panel!
                     // 1. Force the flashlight back ON instantly
                     try {
