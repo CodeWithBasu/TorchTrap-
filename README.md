@@ -77,7 +77,7 @@ graph TD
 ## 🚀 Installation
 
 1. Navigate to the **[Releases](../../releases)** page of this repository.
-2. Download the latest `app-debug.apk` file to your Android device.
+2. Download the latest `TorchTrap.apk` file to your Android device.
 3. Open the downloaded file and install the application *(you may need to allow "Install from Unknown Sources" in your Android settings)*.
 4. Hand your phone to a friend and ask them to "use your flashlight for a second."
 
