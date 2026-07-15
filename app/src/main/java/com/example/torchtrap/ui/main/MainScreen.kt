@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.torchtrap.theme.*
+import com.example.torchtrap.ui.components.ClayBox
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -196,24 +197,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // ON Button
-                Box(
+                ClayBox(
                     modifier = Modifier
                         .width(120.dp)
-                        .height(56.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(if (isTorchOn) ClaySurfaceOn else IosDarkBackground)
-                        .border(
-                            width = 1.dp, 
-                            color = if (!isTorchOn) IosButtonGray else Color.Transparent, 
-                            shape = RoundedCornerShape(28.dp)
-                        )
-                        .clickable {
-                            if (!isTorchOn) {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                isTorchOn = true
-                            }
-                        },
-                    contentAlignment = Alignment.Center
+                        .height(56.dp),
+                    backgroundColor = if (isTorchOn) ClaySurfaceOn else IosDarkBackground,
+                    cornerRadius = 28.dp,
+                    elevation = if (isTorchOn) 2.dp else 8.dp,
+                    onClick = {
+                        if (!isTorchOn) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            isTorchOn = true
+                        }
+                    }
                 ) {
                     Text(
                         text = "ON",
@@ -224,18 +220,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 }
 
                 // OFF Button
-                Box(
+                ClayBox(
                     modifier = Modifier
                         .width(120.dp)
-                        .height(56.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(if (isTorchOn) Color.Black else IosButtonGray)
-                        .clickable {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            if (isTorchOn) {
-                                showPrankDialog = true
-                            }
+                        .height(56.dp),
+                    backgroundColor = if (isTorchOn) Color.Black else IosButtonGray,
+                    cornerRadius = 28.dp,
+                    elevation = if (isTorchOn) 8.dp else 2.dp,
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (isTorchOn) {
+                            showPrankDialog = true
                         }
+                    }
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(
