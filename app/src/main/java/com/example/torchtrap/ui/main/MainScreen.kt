@@ -70,6 +70,28 @@ fun MainScreen(modifier: Modifier = Modifier) {
         catch (e: Exception) { null } 
     }
 
+    // The ultimate defense: Intercept the Android Control Panel (Quick Settings)
+    DisposableEffect(cameraManager, cameraId) {
+        val torchCallback = object : CameraManager.TorchCallback() {
+            override fun onTorchModeChanged(camId: String, enabled: Boolean) {
+                if (camId == cameraId && !enabled && isTorchOn && !showPrankDialog && !showSystemCrash) {
+                    // Victim tried to bypass the trap by turning it off via the system Control Panel!
+                    // 1. Force the flashlight back ON instantly
+                    try {
+                        cameraManager.setTorchMode(cameraId, true)
+                    } catch (e: Exception) {}
+                    
+                    // 2. Punish them by triggering the ransom trap
+                    showPrankDialog = true
+                }
+            }
+        }
+        cameraManager.registerTorchCallback(torchCallback, null)
+        onDispose {
+            cameraManager.unregisterTorchCallback(torchCallback)
+        }
+    }
+
     LaunchedEffect(isTorchOn) {
         try {
             cameraId?.let { cameraManager.setTorchMode(it, isTorchOn) }
